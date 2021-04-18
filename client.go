@@ -28,16 +28,11 @@ func (server *server) newClient(conn net.Conn) {
 
 	server.clients[conn.RemoteAddr().String()] = &client
 
-	client.readInput()
+	server.readInput(&client)
 }
 
-// method that ends a client connection instance to server
-func (server *server) quitServer(client *client) {
-	client.conn.Close()
-}
-
-// method that reads input from client
-func (client *client) readInput() {
+// method that reads input from client and sends commands to server
+func (server *server) readInput(client *client) {
 	scanner := bufio.NewScanner(client.conn)
 	for scanner.Scan() {
 
@@ -47,37 +42,45 @@ func (client *client) readInput() {
 		switch command {
 		case "/name":
 			client.activeChannel.messagesReceiver <- message{
-				id:     "name",
-				date:   time.Now(),
-				client: client,
-				args:   args,
+				id:         "name",
+				date:       time.Now(),
+				fromClient: client,
+				args:       args,
 			}
 		case "/channel":
 			client.activeChannel.messagesReceiver <- message{
-				id:     "channel",
-				date:   time.Now(),
-				client: client,
-				args:   args,
+				id:         "channel",
+				date:       time.Now(),
+				fromClient: client,
+				args:       args,
 			}
 		case "/msg":
 			client.activeChannel.messagesReceiver <- message{
-				id:     "send",
-				date:   time.Now(),
-				client: client,
-				args:   args,
+				id:         "channelReceive",
+				date:       time.Now(),
+				fromClient: client,
+				args:       args,
+			}
+		case "/private":
+			client.activeChannel.messagesReceiver <- message{
+				id:         "privateReceive",
+				date:       time.Now(),
+				fromClient: client,
+				args:       args,
 			}
 		case "/quit":
 			client.activeChannel.messagesReceiver <- message{
-				id:     "quit",
-				date:   time.Now(),
-				client: client,
-				args:   args,
+				id:         "quit",
+				date:       time.Now(),
+				fromClient: client,
+				args:       args,
 			}
 		default:
-			client.activeChannel.messagesReceiver <- message{
-				id:     "error",
-				date:   time.Now(),
-				client: client,
+			server.systemChannel <- systemMessage{
+				id:       "error",
+				date:     time.Now(),
+				toClient: client,
+				args:     "Unknown command",
 			}
 		}
 	}
