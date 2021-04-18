@@ -26,7 +26,7 @@ func (server *server) newClient(conn net.Conn) {
 		activeChannel: server.channels["general"],
 	}
 
-	server.clients[conn.RemoteAddr().String()] = &client
+	server.clients[conn.RemoteAddr()] = &client
 
 	server.readInput(&client)
 }

@@ -1,10 +1,13 @@
 package main
 
-import "time"
+import (
+	"net"
+	"time"
+)
 
 type server struct {
 	channels      map[string]*channel
-	clients       map[string]*client
+	clients       map[net.Addr]*client
 	systemChannel chan systemMessage
 }
 
@@ -13,7 +16,7 @@ func newServer() *server {
 
 	server := server{
 		channels:      make(map[string]*channel),
-		clients:       make(map[string]*client),
+		clients:       make(map[net.Addr]*client),
 		systemChannel: make(chan systemMessage),
 	}
 
@@ -25,22 +28,22 @@ func newServer() *server {
 // SERVER COMMANDS BLOCK //
 
 // send message
-func (server *server) handleMessage(client *client, msg []string) {
+func (server *server) handleMessage(client *client, args []string) {
 	client.activeChannel.messagesSender <- message{
 		id:         "public",
 		date:       time.Now(),
 		fromClient: client,
-		args:       msg,
+		args:       args,
 	}
 }
 
 // private message
-func (server *server) privateMessage(client *client, msg []string) {
+func (server *server) privateMessage(client *client, args []string) {
 	client.activeChannel.messagesSender <- message{
 		id:         "private",
 		date:       time.Now(),
 		fromClient: client,
-		args:       msg,
+		args:       args,
 	}
 }
 
@@ -48,7 +51,7 @@ func (server *server) privateMessage(client *client, msg []string) {
 func (server *server) newChannel(name string) {
 	channel := channel{
 		name:                name,
-		bufferedConnections: make(map[string]*client),
+		bufferedConnections: make(map[net.Addr]*client),
 		messagesReceiver:    make(chan message),
 		messagesSender:      make(chan message),
 	}
@@ -65,7 +68,7 @@ func (server *server) activeChannel(client *client, name string) {
 	client.channels[client.activeChannel.name] = client.activeChannel
 	client.activeChannel = server.channels[name]
 
-	server.channels[name].bufferedConnections[client.conn.RemoteAddr().String()] = client
+	server.channels[name].bufferedConnections[client.conn.RemoteAddr()] = client
 
 	server.systemChannel <- systemMessage{
 		id:       "sys_activeChannel",
@@ -88,8 +91,8 @@ func (server *server) changeName(client *client, name string) {
 
 // quit server
 func (server *server) quitServer(client *client) {
-	delete(server.clients, client.conn.RemoteAddr().String())
-	delete(server.channels[client.activeChannel.name].bufferedConnections, client.conn.RemoteAddr().String())
+	delete(server.clients, client.conn.RemoteAddr())
+	delete(server.channels[client.activeChannel.name].bufferedConnections, client.conn.RemoteAddr())
 
 	client.conn.Close()
 }
