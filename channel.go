@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -27,11 +26,9 @@ func (server *server) receiveMessages(channel *channel) {
 		case "channel":
 			name := msg.args[1]
 			if _, ok := server.channels[name]; !ok {
-				fmt.Print(ok)
 				server.newChannel(name)
 				server.activeChannel(msg.fromClient, name)
 			} else if ok {
-				fmt.Print(ok)
 				server.activeChannel(msg.fromClient, name)
 			}
 
