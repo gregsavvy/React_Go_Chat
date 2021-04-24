@@ -56,10 +56,11 @@ func (server *server) receiveMessages(channel *channel) {
 func (server *server) sendMessages(channel *channel) {
 	for {
 		var msg message = <-channel.messagesSender
+
 		switch msg.id {
 		case "public":
 			//function for public broadcasting
-			clearMsg := strings.Join(msg.args[1:], "")
+			clearMsg := strings.Join(msg.args[1:], " ")
 			msg.fromClient.broadcast(clearMsg)
 
 		case "private":
@@ -67,8 +68,8 @@ func (server *server) sendMessages(channel *channel) {
 			for _, member := range msg.fromClient.activeChannel.bufferedConnections {
 				if member.name == msg.args[1] {
 					toClient := member
-					clearMsg := strings.Join(msg.args[2:], "")
-					toClient.deliverMsg(clearMsg)
+					clearMsg := strings.Join(msg.args[1:], " ")
+					toClient.deliverMsg(clearMsg, msg.fromClient)
 				} else {
 					server.systemChannel <- systemMessage{
 						id:       "error",
@@ -90,16 +91,12 @@ func (server *server) sendMessages(channel *channel) {
 	}
 }
 
-// write message to client [the only method that is called on toClient, others - fromClient]
-func (toClient *client) deliverMsg(msg string) {
-	toClient.conn.Write([]byte("> " + toClient.name + ": " + msg + "\n"))
-}
-
 // write message to channel
-func (client *client) broadcast(msg string) {
-	for addr, member := range client.activeChannel.bufferedConnections {
-		if client.conn.RemoteAddr() != addr {
-			member.deliverMsg(msg)
+func (fromClient *client) broadcast(msg string) {
+	for addr, member := range fromClient.activeChannel.bufferedConnections {
+
+		if fromClient.conn.RemoteAddr() != addr {
+			member.deliverMsg(msg, fromClient)
 		}
 	}
 }

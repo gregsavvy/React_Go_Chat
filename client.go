@@ -27,8 +27,11 @@ func (server *server) newClient(conn net.Conn) {
 	}
 
 	server.clients[conn.RemoteAddr()] = &client
+	server.channels["general"].bufferedConnections[client.conn.RemoteAddr()] = &client
 
-	server.readInput(&client)
+	go server.readInput(&client)
+	go server.receiveSys(&client)
+
 }
 
 // method that reads input from client and sends commands to server
@@ -36,39 +39,39 @@ func (server *server) readInput(client *client) {
 	scanner := bufio.NewScanner(client.conn)
 	for scanner.Scan() {
 
-		args := strings.Split(scanner.Text(), " ")
+		args := strings.Split(scanner.Text()[1:], " ")
 		command := strings.TrimSpace(args[0])
 
 		switch command {
-		case "/name":
+		case "name":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "name",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "/channel":
+		case "channel":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "channel",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "/msg":
+		case "msg":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "channelReceive",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "/private":
+		case "private":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "privateReceive",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "/quit":
+		case "quit":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "quit",
 				date:       time.Now(),
@@ -84,4 +87,33 @@ func (server *server) readInput(client *client) {
 			}
 		}
 	}
+}
+
+// listen for messages on systemChannel
+func (server *server) receiveSys(client *client) {
+	for {
+		var sysMsg systemMessage = <-server.systemChannel
+
+		switch sysMsg.id {
+		case "error":
+			sysMsg.toClient.deliverSys(sysMsg.args)
+
+		case "sys_activeChannel":
+			sysMsg.toClient.deliverSys("> " + "System" + ": Your active channel is " + sysMsg.args + "\n")
+
+		case "sys_changeName":
+			sysMsg.toClient.deliverSys("> " + "System" + ": Your name is " + sysMsg.args + "\n")
+
+		}
+	}
+}
+
+// write message to client [called on toClient object, others - on fromClient]
+func (toClient *client) deliverMsg(msg string, fromClient *client) {
+	toClient.conn.Write([]byte("> " + fromClient.name + ": " + msg + "\n"))
+}
+
+// write sysMessage to client [called on toClient object, others - on fromClient]
+func (toClient *client) deliverSys(msg string) {
+	toClient.conn.Write([]byte(msg))
 }

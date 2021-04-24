@@ -26,7 +26,7 @@ func main() {
 			continue
 		}
 
-		go server.newClient(connection)
+		server.newClient(connection)
 
 	}
 }
