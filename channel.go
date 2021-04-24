@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -26,9 +27,11 @@ func (server *server) receiveMessages(channel *channel) {
 		case "channel":
 			name := msg.args[1]
 			if _, ok := server.channels[name]; !ok {
+				fmt.Print(ok)
 				server.newChannel(name)
 				server.activeChannel(msg.fromClient, name)
 			} else if ok {
+				fmt.Print(ok)
 				server.activeChannel(msg.fromClient, name)
 			}
 
@@ -94,7 +97,6 @@ func (server *server) sendMessages(channel *channel) {
 // write message to channel
 func (fromClient *client) broadcast(msg string) {
 	for addr, member := range fromClient.activeChannel.bufferedConnections {
-
 		if fromClient.conn.RemoteAddr() != addr {
 			member.deliverMsg(msg, fromClient)
 		}

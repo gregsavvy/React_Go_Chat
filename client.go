@@ -39,39 +39,39 @@ func (server *server) readInput(client *client) {
 	scanner := bufio.NewScanner(client.conn)
 	for scanner.Scan() {
 
-		args := strings.Split(scanner.Text()[1:], " ")
+		args := strings.Split(scanner.Text(), " ")
 		command := strings.TrimSpace(args[0])
 
 		switch command {
-		case "name":
+		case "/name":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "name",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "channel":
+		case "/channel":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "channel",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "msg":
+		case "/msg":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "channelReceive",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "private":
+		case "/private":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "privateReceive",
 				date:       time.Now(),
 				fromClient: client,
 				args:       args,
 			}
-		case "quit":
+		case "/quit":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "quit",
 				date:       time.Now(),
@@ -110,7 +110,7 @@ func (server *server) receiveSys(client *client) {
 
 // write message to client [called on toClient object, others - on fromClient]
 func (toClient *client) deliverMsg(msg string, fromClient *client) {
-	toClient.conn.Write([]byte("> " + fromClient.name + ": " + msg + "\n"))
+	toClient.conn.Write([]byte(fromClient.name + ": " + msg + "\n"))
 }
 
 // write sysMessage to client [called on toClient object, others - on fromClient]

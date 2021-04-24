@@ -65,7 +65,10 @@ func (server *server) newChannel(name string) {
 
 // change active channel for a client
 func (server *server) activeChannel(client *client, name string) {
+
+	delete(server.channels[client.activeChannel.name].bufferedConnections, client.conn.RemoteAddr())
 	client.channels[client.activeChannel.name] = client.activeChannel
+
 	client.activeChannel = server.channels[name]
 
 	server.channels[name].bufferedConnections[client.conn.RemoteAddr()] = client
