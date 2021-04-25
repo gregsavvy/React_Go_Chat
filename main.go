@@ -10,7 +10,6 @@ func main() {
 	port := ":8080"
 
 	listener, err := net.Listen("tcp6", port)
-
 	if err != nil {
 		log.Fatalf("error starting server: %s", err.Error())
 	}
@@ -18,7 +17,6 @@ func main() {
 	log.Printf("server started on port %s", port)
 
 	server := newServer()
-
 	for {
 		connection, err := listener.Accept()
 		if err != nil {

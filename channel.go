@@ -22,7 +22,6 @@ func (server *server) receiveMessages(channel *channel) {
 		case "name":
 			name := msg.args[1]
 			server.changeName(msg.fromClient, name)
-
 		case "channel":
 			name := msg.args[1]
 			if _, ok := server.channels[name]; !ok {
@@ -34,7 +33,6 @@ func (server *server) receiveMessages(channel *channel) {
 
 		case "channelReceive":
 			server.handleMessage(msg.fromClient, msg.args)
-
 		case "privateReceive":
 			server.privateMessage(msg.fromClient, msg.args)
 
@@ -62,21 +60,15 @@ func (server *server) sendMessages(channel *channel) {
 			//function for public broadcasting
 			clearMsg := strings.Join(msg.args[1:], " ")
 			msg.fromClient.broadcast(clearMsg)
-
 		case "private":
 			//function for private broadcasting
 			for _, member := range msg.fromClient.activeChannel.bufferedConnections {
 				if member.name == msg.args[1] {
 					toClient := member
-					clearMsg := strings.Join(msg.args[1:], " ")
+					clearMsg := strings.Join(msg.args[2:], " ")
 					toClient.deliverMsg(clearMsg, msg.fromClient)
 				} else {
-					server.systemChannel <- systemMessage{
-						id:       "error",
-						date:     time.Now(),
-						toClient: msg.fromClient,
-						args:     "Something went wrong delivering your message",
-					}
+					continue
 				}
 			}
 

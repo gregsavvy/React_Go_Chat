@@ -32,13 +32,19 @@ func (server *server) newClient(conn net.Conn) {
 	go server.readInput(&client)
 	go server.receiveSys(&client)
 
+	server.systemChannel <- systemMessage{
+		id:       "help",
+		date:     time.Now(),
+		toClient: &client,
+		args:     "\nAvailable commands:\n/name [your name] | change your name\n/channel [your channel name] | create a channel or connect to a channel if it exists\n/msg [your message] | type your message in a current channel\n/private [recipient] [your message] | send a private message to someone on a channel\n/quit | exit the server\n\nYour current channel is " + client.activeChannel.name + "\n",
+	}
 }
 
 // method that reads input from client and sends commands to server
 func (server *server) readInput(client *client) {
 	scanner := bufio.NewScanner(client.conn)
-	for scanner.Scan() {
 
+	for scanner.Scan() {
 		args := strings.Split(scanner.Text(), " ")
 		command := strings.TrimSpace(args[0])
 
@@ -78,12 +84,19 @@ func (server *server) readInput(client *client) {
 				fromClient: client,
 				args:       args,
 			}
+		case "/help":
+			server.systemChannel <- systemMessage{
+				id:       "help",
+				date:     time.Now(),
+				toClient: client,
+				args:     "\nAvailable commands:\n/name [your name] | change your name\n/channel [your channel name] | create a channel or connect to a channel if it exists\n/msg [your message] | type your message in a current channel\n/private [recipient] [your message] | send a private message to someone on a channel\n/quit | exit the server\n\nYour current channel is " + client.activeChannel.name + "\n",
+			}
 		default:
 			server.systemChannel <- systemMessage{
 				id:       "error",
 				date:     time.Now(),
 				toClient: client,
-				args:     "Unknown command",
+				args:     "Unknown command, please type /help\n",
 			}
 		}
 	}
@@ -100,10 +113,11 @@ func (server *server) receiveSys(client *client) {
 
 		case "sys_activeChannel":
 			sysMsg.toClient.deliverSys("> " + "System" + ": Your active channel is " + sysMsg.args + "\n")
-
 		case "sys_changeName":
 			sysMsg.toClient.deliverSys("> " + "System" + ": Your name is " + sysMsg.args + "\n")
 
+		case "help":
+			sysMsg.toClient.deliverSys(sysMsg.args)
 		}
 	}
 }
@@ -115,5 +129,5 @@ func (toClient *client) deliverMsg(msg string, fromClient *client) {
 
 // write sysMessage to client [called on toClient object, others - on fromClient]
 func (toClient *client) deliverSys(msg string) {
-	toClient.conn.Write([]byte(msg))
+	toClient.conn.Write([]byte(msg + "\n"))
 }

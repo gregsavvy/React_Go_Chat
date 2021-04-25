@@ -13,7 +13,6 @@ type server struct {
 
 // method that creates server instance
 func newServer() *server {
-
 	server := server{
 		channels:      make(map[string]*channel),
 		clients:       make(map[net.Addr]*client),
@@ -64,26 +63,26 @@ func (server *server) newChannel(name string) {
 }
 
 // change active channel for a client
-func (server *server) activeChannel(client *client, name string) {
+func (server *server) activeChannel(client *client, name_ string) {
 
 	delete(server.channels[client.activeChannel.name].bufferedConnections, client.conn.RemoteAddr())
 	client.channels[client.activeChannel.name] = client.activeChannel
 
-	client.activeChannel = server.channels[name]
-
-	server.channels[name].bufferedConnections[client.conn.RemoteAddr()] = client
+	client.activeChannel = server.channels[name_]
+	server.channels[name_].bufferedConnections[client.conn.RemoteAddr()] = client
 
 	server.systemChannel <- systemMessage{
 		id:       "sys_activeChannel",
 		date:     time.Now(),
 		toClient: client,
-		args:     name,
+		args:     name_,
 	}
 }
 
 // change name
 func (server *server) changeName(client *client, name string) {
 	client.name = name
+
 	server.systemChannel <- systemMessage{
 		id:       "sys_changeName",
 		date:     time.Now(),
