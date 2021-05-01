@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// client struct that holds info about users
 type client struct {
 	conn          net.Conn
 	name          string

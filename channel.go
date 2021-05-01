@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// channel struct used to store info about rooms created on the server and clients in them
 type channel struct {
 	name                string
 	bufferedConnections map[net.Addr]*client
