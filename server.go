@@ -7,7 +7,6 @@ import (
 
 type server struct {
 	channels      map[string]*channel
-	clients       map[net.Addr]*client
 	systemChannel chan systemMessage
 }
 
@@ -15,7 +14,6 @@ type server struct {
 func newServer() *server {
 	server := server{
 		channels:      make(map[string]*channel),
-		clients:       make(map[net.Addr]*client),
 		systemChannel: make(chan systemMessage),
 	}
 
@@ -93,7 +91,6 @@ func (server *server) changeName(client *client, name string) {
 
 // quit server
 func (server *server) quitServer(client *client) {
-	delete(server.clients, client.conn.RemoteAddr())
 	delete(server.channels[client.activeChannel.name].bufferedConnections, client.conn.RemoteAddr())
 
 	client.conn.Close()
