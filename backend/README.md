@@ -1,0 +1,1 @@
+This is the backend written in Go for the chat app. It is a modified version of the https://github.com/gregsavvy/Go_TCP_Chat to work with websockets.

@@ -68,8 +68,6 @@ func (server *server) sendMessages(channel *channel) {
 					toClient := member
 					clearMsg := strings.Join(msg.args[2:], " ")
 					toClient.deliverMsg(clearMsg, msg.fromClient)
-				} else {
-					continue
 				}
 			}
 
