@@ -3,19 +3,26 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 // .Upgrade to upgrade http connection to a websocket connection
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:   1024,
+	WriteBufferSize:  1024,
+	HandshakeTimeout: 60 * time.Second,
+	Error: func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+	},
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 func main() {
 	// Declare port
-	port := ":8080"
+	port := ":5000"
 
 	// New server object to store info about server
 	server := newServer()

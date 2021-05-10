@@ -145,7 +145,7 @@ func (server *server) receiveSys(client *client) {
 // write message to client [called on toClient object, others - on fromClient]
 func (toClient *client) deliverMsg(msg string, fromClient *client) {
 	// to be tested
-	toClient.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	// toClient.conn.SetWriteDeadline(time.Now().Add(writeWait))
 
 	toClient.conn.WriteMessage(websocket.TextMessage, []byte(fromClient.name+": "+msg+"\n"))
 }
@@ -153,7 +153,7 @@ func (toClient *client) deliverMsg(msg string, fromClient *client) {
 // write sysMessage to client [called on toClient object, others - on fromClient]
 func (toClient *client) deliverSys(msg string) {
 	// to be tested
-	toClient.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	// toClient.conn.SetWriteDeadline(time.Now().Add(writeWait))
 
 	toClient.conn.WriteMessage(websocket.TextMessage, []byte(msg+"\n"))
 }
