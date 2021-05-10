@@ -36,13 +36,6 @@ const App = () => {
 
 }, []);
 
-  // utility function to generate random id
-  function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
-  }
-
   // send message to server
   const sendMsg = (text) => {
     if (!text) {
