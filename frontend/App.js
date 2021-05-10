@@ -9,32 +9,39 @@ import SendMsg from './components/SendMsg';
 var backend = 'ws://10.0.2.2:5000/'
 
 const App = () => {
-  const [msg, setMsg] = useState([
-  "no messages yet..."
-  ]);
+  const [msg, setMsg] = useState("");
 
   const socket = useRef(null);
 
-  // connect and get msg
-  useEffect(async () => {
+  // connect
+  useEffect(() => {
     // Websocket server URL
     socket.current = new WebSocket(backend);
-    
+
     socket.current.onopen = () => console.log("Connection opened");
     socket.current.onclose = () => console.log("Connection closed");
 
   }, []);
 
+  // get msg
   useEffect(() => {
     if (!socket.current) return;
 
     // listen for messages
     socket.current.onmessage = (response) => {
       setMsg(prevItems => {
-        return [...prevItems, {response:response.data}];
+        return [...prevItems, response.data];
       });
     };
+
 }, []);
+
+  // utility function to generate random id
+  function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
+  }
 
   // send message to server
   const sendMsg = (text) => {

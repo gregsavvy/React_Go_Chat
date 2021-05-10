@@ -1,4 +1,4 @@
-module github.com/gregsavvy/ReactNative_Chat
+module github.com/gregsavvy/React_Go_Chat
 
 go 1.13
 
