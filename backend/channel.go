@@ -60,14 +60,14 @@ func (server *server) sendMessages(channel *channel) {
 		case "public":
 			//function for public broadcasting
 			clearMsg := strings.Join(msg.args[1:], " ")
-			msg.fromClient.broadcast(clearMsg)
+			msg.fromClient.broadcast(clearMsg, msg.date)
 		case "private":
 			//function for private broadcasting
 			for _, member := range msg.fromClient.activeChannel.bufferedConnections {
 				if member.name == msg.args[1] {
 					toClient := member
 					clearMsg := strings.Join(msg.args[2:], " ")
-					toClient.deliverMsg(clearMsg, msg.fromClient)
+					toClient.deliverMsg(clearMsg, msg.fromClient, msg.date)
 				}
 			}
 
@@ -83,10 +83,10 @@ func (server *server) sendMessages(channel *channel) {
 }
 
 // write message to channel
-func (fromClient *client) broadcast(msg string) {
+func (fromClient *client) broadcast(msg string, date time.Time) {
 	for addr, member := range fromClient.activeChannel.bufferedConnections {
 		if fromClient.conn.RemoteAddr() != addr {
-			member.deliverMsg(msg, fromClient)
+			member.deliverMsg(msg, fromClient, date)
 		}
 	}
 }

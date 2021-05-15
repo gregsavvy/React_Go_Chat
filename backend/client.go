@@ -43,7 +43,7 @@ func (server *server) newClient(conn *websocket.Conn) {
 		id:       "help",
 		date:     time.Now(),
 		toClient: &client,
-		args:     "\nAvailable commands:\n/name [your name] | change your name\n/channel [your channel name] | create a channel or connect to a channel if it exists\n/msg [your message] | type your message in a current channel\n/private [recipient] [your message] | send a private message to someone on a channel\n/quit | exit the server\n\nYour current channel is " + client.activeChannel.name + "\n",
+		args:     "Available commands:\\n/name [your name] | change your name\\n/channel [your channel name] | create a channel or connect to a channel if it exists\\n/msg [your message] | type your message in a current channel\\n/private [recipient] [your message] | send a private message to someone on a channel\\n/quit | exit the server\\n\\nYour current channel is " + client.activeChannel.name,
 	}
 }
 
@@ -109,7 +109,7 @@ func (server *server) readInput(client *client) {
 				id:       "help",
 				date:     time.Now(),
 				toClient: client,
-				args:     "\nAvailable commands:\n/name [your name] | change your name\n/channel [your channel name] | create a channel or connect to a channel if it exists\n/msg [your message] | type your message in a current channel\n/private [recipient] [your message] | send a private message to someone on a channel\n/quit | exit the server\n\nYour current channel is " + client.activeChannel.name + "\n",
+				args:     "Available commands:\n/name [your name] | change your name\n/channel [your channel name] | create a channel or connect to a channel if it exists\n/msg [your message] | type your message in a current channel\n/private [recipient] [your message] | send a private message to someone on a channel\n/quit | exit the server\n\nYour current channel is " + client.activeChannel.name + "\n",
 			}
 		default:
 			server.systemChannel <- systemMessage{
@@ -129,25 +129,25 @@ func (server *server) receiveSys(client *client) {
 
 		switch sysMsg.id {
 		case "error":
-			sysMsg.toClient.deliverSys(sysMsg.args)
+			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"" + sysMsg.args + "\"}")
 
 		case "sys_activeChannel":
-			sysMsg.toClient.deliverSys("> " + "System" + ": Your active channel is " + sysMsg.args + "\n")
+			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"Your active channel is " + sysMsg.args + "\"}")
 		case "sys_changeName":
-			sysMsg.toClient.deliverSys("> " + "System" + ": Your name is " + sysMsg.args + "\n")
+			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"Your name is " + sysMsg.args + "\"}")
 
 		case "help":
-			sysMsg.toClient.deliverSys(sysMsg.args)
+			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"" + sysMsg.args + "\"}")
 		}
 	}
 }
 
 // write message to client [called on toClient object, others - on fromClient]
-func (toClient *client) deliverMsg(msg string, fromClient *client) {
+func (toClient *client) deliverMsg(msg string, fromClient *client, date time.Time) {
 	// to be tested
 	// toClient.conn.SetWriteDeadline(time.Now().Add(writeWait))
 
-	toClient.conn.WriteMessage(websocket.TextMessage, []byte(fromClient.name+": "+msg+"\n"))
+	toClient.conn.WriteMessage(websocket.TextMessage, []byte("{\"user\":"+"\""+fromClient.name+"\", "+"\"time\":"+"\""+date.String()+"\", "+"\"msg\":"+"\""+msg+"\"}"))
 }
 
 // write sysMessage to client [called on toClient object, others - on fromClient]

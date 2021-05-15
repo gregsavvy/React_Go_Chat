@@ -9,7 +9,13 @@ import SendMsg from './components/SendMsg';
 var backend = 'ws://10.0.2.2:5000/'
 
 const App = () => {
-  const [msg, setMsg] = useState("");
+  const [msg, setMsg] = useState([{
+    user: "",
+    time: "", 
+    text: ""
+  }]);
+
+  // const [name, setName] = useState("anonymous");
 
   const socket = useRef(null);
 
@@ -29,8 +35,10 @@ const App = () => {
 
     // listen for messages
     socket.current.onmessage = (response) => {
-      setMsg(prevItems => {
-        return [...prevItems, response.data];
+      let json_data = JSON.parse(response.data)
+
+      setMsg(prevItems => { 
+        return [...prevItems, {user: json_data.user, time: Date(), text: json_data.msg}];
       });
     };
 
@@ -45,7 +53,7 @@ const App = () => {
           socket.current.send(`/msg ${text}`)
           // save string
           setMsg(prevItems => {
-            return [...prevItems, text];
+            return [...prevItems, {user: "anonymous", time: Date(), text: text}];
           });
       }
     };

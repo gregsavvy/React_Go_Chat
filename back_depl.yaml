@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: backend-deployment
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            component: backend
+    template:
+        metadata:
+            labels:
+                component: backend
+        spec:
+            containers:
+                -   name: backend
+                    image: golang:latest
+                    ports:
+                        -   containerPort: 5000
+                    env:
+                    command: ["/bin/sh","-c"]
+                    args: ["COPY ./go.mod .; RUN go mod download; COPY . .; go run ."]
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: backend-cluster-ip-service
+spec:
+    type: ClusterIP
+    selector:
+        component: backend
+    ports:
+         -   port: 5000
+             targetPort: 5000
+
+                        

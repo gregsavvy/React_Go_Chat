@@ -7,8 +7,9 @@ import {
 
 
 const Messages = ({messages}) => {
+  console.log(messages)
   if (messages.length > 1) {
-    var list = messages.map((message, index) => <Text key={index}>{message}</Text>)
+    var list = messages.map((message, index) => <Text key={index}>{message.text}</Text>)
   } else {
     var list = <Text>{messages.toString()}</Text>
   }
