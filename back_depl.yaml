@@ -14,12 +14,10 @@ spec:
         spec:
             containers:
                 -   name: backend
-                    image: golang:latest
+                    image: gregsavvy/golang_chat
                     ports:
                         -   containerPort: 5000
                     env:
-                    command: ["/bin/sh","-c"]
-                    args: ["COPY ./go.mod .; RUN go mod download; COPY . .; go run ."]
 ---
 apiVersion: v1
 kind: Service

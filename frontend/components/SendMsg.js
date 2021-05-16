@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 
-const SendMsg = ({sendMsg}) => {
+const SendMsg = ({sendMsg, username}) => {
   const [text, onChangeText] = React.useState("");
 
   return (
@@ -22,7 +22,7 @@ const SendMsg = ({sendMsg}) => {
       <TouchableOpacity
         style={styles.btn}
         onPress={() => {
-          sendMsg(text);
+          sendMsg(text, username);
           onChangeText('');
         }}>
         <Text style={styles.btnText}>

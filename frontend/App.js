@@ -13,21 +13,21 @@ const App = () => {
     user: "",
     time: "", 
     text: ""
-  }]);
+  }])
 
-  // const [name, setName] = useState("anonymous");
+  const [username, setName] = useState("anonymous")
 
-  const socket = useRef(null);
+  const socket = useRef(null)
 
   // connect
   useEffect(() => {
     // Websocket server URL
     socket.current = new WebSocket(backend);
 
-    socket.current.onopen = () => console.log("Connection opened");
-    socket.current.onclose = () => console.log("Connection closed");
+    socket.current.onopen = () => console.log("Connection opened")
+    socket.current.onclose = () => console.log("Connection closed")
 
-  }, []);
+  }, [])
 
   // get msg
   useEffect(() => {
@@ -39,13 +39,13 @@ const App = () => {
 
       setMsg(prevItems => { 
         return [...prevItems, {user: json_data.user, time: Date(), text: json_data.msg}];
-      });
-    };
+      })
+    }
 
-}, []);
+}, [])
 
   // send message to server
-  const sendMsg = (text) => {
+  const sendMsg = (text, username) => {
     if (!text) {
       // do nothing
       } else {
@@ -53,10 +53,22 @@ const App = () => {
           socket.current.send(`/msg ${text}`)
           // save string
           setMsg(prevItems => {
-            return [...prevItems, {user: "anonymous", time: Date(), text: text}];
-          });
+            return [...prevItems, {user: username, time: Date(), text: text}];
+          })
       }
-    };
+    }
+
+  // change name
+  const changeName = (name) => {
+    if (!name) {
+      // do nothing
+      } else {
+          //send msg to server
+          socket.current.send(`/name ${name}`)
+          // save string
+          setName(name)
+      }
+  }
 
   return (
     <View style={styles.container}>
@@ -64,13 +76,13 @@ const App = () => {
       <Messages messages={msg}/>
       <SendMsg sendMsg={sendMsg}/>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-});
+})
 
 export default App;

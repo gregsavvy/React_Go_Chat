@@ -14,14 +14,12 @@ spec:
         spec:
             containers:
                 -   name: client
-                    image: node:latest
+                    image: gregsavvy/react-native_chat
                     ports:
                         - containerPort: 8080
                     env:
                         -   name: BACKEND_HOST
                             value: backend-cluster-ip-service
-                    command: ["/bin/sh","-c"]
-                    args: ["COPY ./package.json ./; RUN npm install; COPY . .; npm run start"]
 ---
 apiVersion: v1
 kind: Service
