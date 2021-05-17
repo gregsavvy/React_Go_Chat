@@ -5,15 +5,13 @@ import Header from './components/Header';
 import Messages from './components/Messages';
 import SendMsg from './components/SendMsg';
 
+import { v4 as uuidv4 } from 'uuid';
+
 // specify backend address
 var backend = 'ws://10.0.2.2:5000/'
 
 const App = () => {
-  const [msg, setMsg] = useState([{
-    user: "",
-    time: "", 
-    text: ""
-  }])
+  const [msg, setMsg] = useState([])
 
   const [username, setName] = useState("anonymous")
 
@@ -38,7 +36,7 @@ const App = () => {
       let json_data = JSON.parse(response.data)
 
       setMsg(prevItems => { 
-        return [...prevItems, {user: json_data.user, time: Date(), text: json_data.msg}];
+        return [...prevItems, {key: uuidv4(), user: json_data.user, time: Date(), text: json_data.msg}];
       })
     }
 
@@ -53,7 +51,7 @@ const App = () => {
           socket.current.send(`/msg ${text}`)
           // save string
           setMsg(prevItems => {
-            return [...prevItems, {user: username, time: Date(), text: text}];
+            return [...prevItems, {key: uuidv4(), user: username, time: Date(), text: text}];
           })
       }
     }
@@ -73,8 +71,8 @@ const App = () => {
   return (
     <View style={styles.container}>
       <Header />
-      <Messages messages={msg}/>
-      <SendMsg sendMsg={sendMsg}/>
+      <Messages messages={msg} username={username}/>
+      <SendMsg sendMsg={sendMsg} username={username}/>
     </View>
   )
 }

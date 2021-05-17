@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'dodgerblue',
     padding: 9,
     margin: 5,
+    borderRadius: 5,
   },
   btnText: {
     color: 'white',
