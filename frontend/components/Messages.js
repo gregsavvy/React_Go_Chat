@@ -4,24 +4,35 @@ import {
   Text,
   SafeAreaView,
   FlatList,
-  View
+  View,
 } from 'react-native';
 
 const Item = ({ item, username }) => {
   if (item.user == username) {
     return <View style={styles.container_send}>
-      <Text style={styles.user}>{item.user}</Text>
-      <Text style={styles.time}>{item.time}</Text>
-      <Text style={styles.text}>{item.text}</Text>
+      <View style={styles.container_meta}>
+        <Text style={styles.user}>{item.user}</Text>
+        <Text style={styles.time}>{item.time}</Text>
+      </View>
+      <Text style={styles.text_send}>{item.text}</Text>
     </View>
-
+  } else if (item.user == 'System') {
+    return <View style={styles.container_receive}>
+      <View style={styles.container_meta}>
+        <Text style={styles.user}>{item.user}</Text>
+        <Text style={styles.time}>{item.time}</Text>
+      </View>
+      <Text style={styles.text_system}>{item.text}</Text>
+    </View>
   } else if (item.user != username) {
     return <View style={styles.container_receive}>
-      <Text style={styles.user}>{item.user}</Text>
-      <Text style={styles.time}>{item.time}</Text>
-      <Text style={styles.text}>{item.text}</Text>
+      <View style={styles.container_meta}>
+        <Text style={styles.user}>{item.user}</Text>
+        <Text style={styles.time}>{item.time}</Text>
+      </View>
+      <Text style={styles.text_receive}>{item.text}</Text>
     </View>
-  }
+  } 
 }
 
 const Messages = ({ messages, username }) => {
@@ -30,8 +41,8 @@ const Messages = ({ messages, username }) => {
   );
   
   return (
-    <SafeAreaView>
-      <FlatList
+    <SafeAreaView style={styles.flatlist}>
+      <FlatList 
         data={messages}
         renderItem = {renderItem}
         keyExtractor={item => item.key}
@@ -41,30 +52,50 @@ const Messages = ({ messages, username }) => {
 };
 
 const styles = StyleSheet.create({
+  flatlist: {
+    flex: 1,
+  },
   user: {
-    height: 20,
-    margin: 5,
-    borderWidth: 1,
+    margin: 1,
+    color: 'slategray',
   },
   time: {
-    height: 20,
-    margin: 5,
-    borderWidth: 1,
+    margin: 1,
+    color: 'slategray',
+    marginLeft: 'auto'
   },
-  text: {
-    height: 40,
-    margin: 5,
-    borderWidth: 1,
+  text_send: {
+    padding: 10,    
+    borderRadius: 15,
+    backgroundColor: 'dodgerblue',
+    color: 'white',
+  },
+  text_receive: {
+    padding: 10,   
+    borderRadius: 15,
+    backgroundColor: 'springgreen',
+    color: 'white',
+  },
+  text_system: {
+    padding: 10,
+    borderRadius: 15,
+    backgroundColor: 'orangered',
+    color: 'white',
   },
   container_send: {
     padding: 5,
     marginVertical: 5,
     marginHorizontal: 5,
+    marginLeft: 100,
   },
   container_receive: {
     padding: 5,
     marginVertical: 5,
     marginHorizontal: 5,
+    marginRight: 100,
+  },
+  container_meta: {
+    flexDirection: 'row',
   },
 
 });

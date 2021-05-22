@@ -4,7 +4,8 @@ import {
   TextInput,
   SafeAreaView,
   TouchableOpacity,
-  Text
+  Text,
+  View
 } from 'react-native';
 
 
@@ -12,44 +13,53 @@ const SendMsg = ({sendMsg, username}) => {
   const [text, onChangeText] = React.useState("");
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.btnWrapper}>
       <TextInput
         style={styles.input}
         onChangeText={onChangeText}
         placeholder="Send your message..."
         value={text}
       />
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={() => {
-          sendMsg(text, username);
-          onChangeText('');
-        }}>
-        <Text style={styles.btnText}>
-          Send
-        </Text>
-      </TouchableOpacity>
- 
+      <View>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            sendMsg(text, username);
+            onChangeText('');
+          }}>
+          <Text style={styles.btnText}>
+            &#10140;
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   input: {
-    height: 60,
-    padding: 8,
-    margin: 5,
+    flex: 1,
   },
   btn: {
-    backgroundColor: 'dodgerblue',
-    padding: 9,
-    margin: 5,
-    borderRadius: 5,
+    backgroundColor: 'limegreen',
+    padding: 10,
+    paddingLeft: 15,
+    paddingRight: 15,
+    margin: 1,
+    borderRadius: 50,    
   },
   btnText: {
     color: 'white',
     fontSize: 20,
     textAlign: 'center',
+  },
+  btnWrapper: {
+    flexDirection: 'row',
+    padding: 0,
+    margin: 2,
+    borderWidth: 1,
+    borderRadius: 25,
+    borderColor: 'silver',
   },
 });
 

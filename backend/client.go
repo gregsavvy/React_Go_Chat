@@ -29,7 +29,7 @@ func (server *server) newClient(conn *websocket.Conn) {
 
 	client := client{
 		conn:          conn,
-		name:          "anonymous",
+		name:          "Anonymous",
 		channels:      make(map[string]*channel),
 		activeChannel: server.channels["general"],
 	}
@@ -43,7 +43,7 @@ func (server *server) newClient(conn *websocket.Conn) {
 		id:       "help",
 		date:     time.Now(),
 		toClient: &client,
-		args:     "Available commands:\\n/name [your name] | change your name\\n/channel [your channel name] | create a channel or connect to a channel if it exists\\n/msg [your message] | type your message in a current channel\\n/private [recipient] [your message] | send a private message to someone on a channel\\n/quit | exit the server\\n\\nYour current channel is " + client.activeChannel.name,
+		args:     "Available commands:\\n/name [your name] | change your name\\n/channel [your channel name] | create a channel or connect to a channel if it exists\\n/private [recipient] [your message] | send a private message to someone on a channel\\n/quit | exit the server\\n\\nYour current channel is " + client.activeChannel.name,
 	}
 }
 

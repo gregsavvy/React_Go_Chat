@@ -11,10 +11,14 @@ import { v4 as uuidv4 } from 'uuid';
 var backend = 'ws://10.0.2.2:5000/'
 
 const App = () => {
+
+  // State to store messages
   const [msg, setMsg] = useState([])
 
-  const [username, setName] = useState("anonymous")
+  // State to store username
+  const [username, setName] = useState("Anonymous")
 
+  // Special state to store backend address
   const socket = useRef(null)
 
   // connect
@@ -36,7 +40,7 @@ const App = () => {
       let json_data = JSON.parse(response.data)
 
       setMsg(prevItems => { 
-        return [...prevItems, {key: uuidv4(), user: json_data.user, time: Date(), text: json_data.msg}];
+        return [...prevItems, {key: uuidv4(), user: json_data.user, time: Date().toString().slice(0,24), text: json_data.msg}];
       })
     }
 
@@ -51,7 +55,7 @@ const App = () => {
           socket.current.send(`/msg ${text}`)
           // save string
           setMsg(prevItems => {
-            return [...prevItems, {key: uuidv4(), user: username, time: Date(), text: text}];
+            return [...prevItems, {key: uuidv4(), user: username, time: Date().toString().slice(0,24), text: text}];
           })
       }
     }
@@ -70,7 +74,7 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <Header />
+      <Header changeName={changeName} />
       <Messages messages={msg} username={username}/>
       <SendMsg sendMsg={sendMsg} username={username}/>
     </View>
