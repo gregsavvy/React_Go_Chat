@@ -1,13 +1,16 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
+import { BackButton } from "react-router-native";
+
 import Options from './Options';
 
-const Header = ({changeName}) => {
+const Header = ({ changeName, changeChannel, quitCommand }) => {
   return (
     <View style={styles.header}>
+      <BackButton/>
       <Text style={styles.text}>Websocket Chat</Text>
-      <Options changeName={changeName}/>
+      <Options changeName={changeName} changeChannel={changeChannel} quitCommand={quitCommand} />
     </View>
   );
 };

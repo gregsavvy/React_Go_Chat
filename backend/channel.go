@@ -34,8 +34,6 @@ func (server *server) receiveMessages(channel *channel) {
 
 		case "channelReceive":
 			server.handleMessage(msg.fromClient, msg.args)
-		case "privateReceive":
-			server.privateMessage(msg.fromClient, msg.args)
 
 		case "quit":
 			server.quitServer(msg.fromClient)
@@ -61,15 +59,6 @@ func (server *server) sendMessages(channel *channel) {
 			//function for public broadcasting
 			clearMsg := strings.Join(msg.args[1:], " ")
 			msg.fromClient.broadcast(clearMsg, msg.date)
-		case "private":
-			//function for private broadcasting
-			for _, member := range msg.fromClient.activeChannel.bufferedConnections {
-				if member.name == msg.args[1] {
-					toClient := member
-					clearMsg := strings.Join(msg.args[2:], " ")
-					toClient.deliverMsg(clearMsg, msg.fromClient, msg.date)
-				}
-			}
 
 		default:
 			server.systemChannel <- systemMessage{

@@ -37,6 +37,7 @@ func main() {
 		}
 
 		server.newClient(conn)
+
 	})
 
 	// Start listening

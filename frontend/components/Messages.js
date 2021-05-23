@@ -8,30 +8,31 @@ import {
 } from 'react-native';
 
 const Item = ({ item, username }) => {
-  if (item.user == username) {
+
+  if (item.user == 'System') {
+    return <View style={styles.container_receive}>
+            <View style={styles.container_meta}>
+              <Text style={styles.user}>{item.user}</Text>
+              <Text style={styles.time}>{item.time}</Text>
+            </View>
+            <Text style={styles.text_system}>{item.text}</Text>
+          </View>
+  } else if (item.type == 'sent') {
     return <View style={styles.container_send}>
-      <View style={styles.container_meta}>
-        <Text style={styles.user}>{item.user}</Text>
-        <Text style={styles.time}>{item.time}</Text>
-      </View>
-      <Text style={styles.text_send}>{item.text}</Text>
-    </View>
-  } else if (item.user == 'System') {
+            <View style={styles.container_meta}>
+              <Text style={styles.user}>{item.user}</Text>
+              <Text style={styles.time}>{item.time}</Text>
+            </View>
+            <Text style={styles.text_send}>{item.text}</Text>
+          </View>
+  } else if (item.type == 'received') {
     return <View style={styles.container_receive}>
-      <View style={styles.container_meta}>
-        <Text style={styles.user}>{item.user}</Text>
-        <Text style={styles.time}>{item.time}</Text>
-      </View>
-      <Text style={styles.text_system}>{item.text}</Text>
-    </View>
-  } else if (item.user != username) {
-    return <View style={styles.container_receive}>
-      <View style={styles.container_meta}>
-        <Text style={styles.user}>{item.user}</Text>
-        <Text style={styles.time}>{item.time}</Text>
-      </View>
-      <Text style={styles.text_receive}>{item.text}</Text>
-    </View>
+            <View style={styles.container_meta}>
+              <Text style={styles.user}>{item.user}</Text>
+              <Text style={styles.time}>{item.time}</Text>
+            </View>
+            <Text style={styles.text_receive}>{item.text}</Text>
+          </View>
   } 
 }
 
@@ -57,7 +58,8 @@ const styles = StyleSheet.create({
   },
   user: {
     margin: 1,
-    color: 'slategray',
+    color: 'deepskyblue',
+    textDecorationLine: 'underline',
   },
   time: {
     margin: 1,

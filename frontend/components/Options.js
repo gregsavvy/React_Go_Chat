@@ -9,28 +9,44 @@ import {
   TextInput
 } from 'react-native';
 
-const Options = ({changeName}) => {
+import { Link } from "react-router-native";
 
+const Options = ({changeName, changeChannel, quitCommand}) => {
+   
   // State to store options display
   const [options, setOptions] = useState(false)
 
   // State to store change username display
   const [optionsUsername, setOptionsUsername] = useState(false)
 
-  const [text, onChangeText] = React.useState("");
+  // State to store change channel display
+  const [optionsChannel, setOptionsChannel] = useState(false)
+
+  const [textUsername, onChangeTextUsername] = React.useState("");
+  const [textChannel, onChangeTextChannel] = React.useState("");
 
   return (
     <View style={styles.containerAllOptions}>
 
+      {/* Button to open options menu */}
       <TouchableOpacity onPress={() => setOptions(options => !options)}>
         <Text style={styles.btnOptions}>
           &#8286;
         </Text>
       </TouchableOpacity>
 
+      {/* Pop-up modal screen */}
       <Modal
         changeName={changeName}
         optionsUsername={optionsUsername}
+
+        changeChannel={changeChannel}
+        optionsChannel={optionsChannel}
+
+        quitCommand={quitCommand}
+
+        Link={Link}
+
         animationType='fade'
         transparent={true}
         visible={options}
@@ -41,25 +57,28 @@ const Options = ({changeName}) => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
 
+            {/* Change username button */}
             <TouchableOpacity
                 style={styles.buttonMenu}
                 onPress={() => setOptionsUsername(!optionsUsername)}
               >
               <Text style={styles.modalText}>Change username</Text>
             </TouchableOpacity>
-   
+
+
+            {/* Pop-up for Change username button */}
             {optionsUsername === true && <View>
               <TextInput
-                onChangeText={onChangeText}
+                onChangeText={onChangeTextUsername}
                 placeholder="Type your username..."
-                value={text}
+                value={textUsername}
               />
               
                 <TouchableOpacity
                   style={styles.btnName}
                   onPress={() => {
-                    changeName(text);
-                    onChangeText('');
+                    changeName(textUsername);
+                    onChangeTextUsername('');
                   }}>
                   <Text style={styles.btnTextName}>
                     Change
@@ -67,19 +86,69 @@ const Options = ({changeName}) => {
                 </TouchableOpacity>
             </View>
             }
-           
+
+            {/* Change channel button */}
             <TouchableOpacity
                 style={styles.buttonMenu}
-                onPress={() => null}
+                onPress={() => setOptionsChannel(!optionsChannel)}
               >
-              <Text style={styles.modalText}>Contacts</Text>
+              <Text style={styles.modalText}>Change/Create channel</Text>
             </TouchableOpacity>
 
+            {/* Pop-up for Change channel button */}
+            {optionsChannel === true && <View>
+              <TextInput
+                onChangeText={onChangeTextChannel}
+                placeholder="Type to create/connect..."
+                value={textChannel}
+              />
+              
+                <TouchableOpacity
+                  style={styles.btnName}
+                  onPress={() => {
+                    changeChannel(textChannel);
+                    onChangeTextChannel('');
+                  }}>
+                  <Text style={styles.btnTextName}>
+                    Change
+                  </Text>
+                </TouchableOpacity>
+            </View>
+            }
+
+            {/* Go to contacts screen */}
+            <TouchableOpacity
+                style={styles.buttonMenu}
+            >
+              <Link
+                underlayColor="#f0f4f7"
+                onPress={(options) => setOptions(!options)}
+                to="/contacts"
+              >
+                <Text style={styles.modalText}>Contacts</Text>
+              </Link>
+            </TouchableOpacity>
+
+            {/* Button to go back to chat */}
             <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={(options) => setOptions(!options)}
             >
-              <Text style={styles.textClose}>Go Back</Text>
+              <Link
+                underlayColor="dodgerblue"
+                onPress={(options) => setOptions(!options)}
+                to="/"
+              >
+                <Text style={styles.textClose}>Go Back</Text>
+              </Link>
+            </Pressable>
+
+            {/* Quit */}
+            <Pressable
+              style={[styles.button, styles.buttonExit]}
+              onPress={quitCommand}
+            >
+              <Text style={styles.textClose}>Disconnect</Text>
             </Pressable>
 
           </View>
@@ -136,13 +205,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignSelf: 'stretch'
   },
+  buttonExit: {
+    backgroundColor: "red",
+    marginTop: 20,
+    alignSelf: 'stretch'
+  },
   textClose: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center"
   },
   modalText: {
-    textAlign: 'center'
+    textAlign: 'center',
   },
   btnName: {
     backgroundColor: 'limegreen',

@@ -18,10 +18,10 @@ type client struct {
 }
 
 // Time allowed to read the next pong message from the peer (standard var from gorilla).
-var readWait = 60 * time.Second
+var readWait = 1800 * time.Second
 
 // Time allowed to write a message to the peer (standard var from gorilla).
-var writeWait = 10 * time.Second
+var writeWait = 1800 * time.Second
 
 // method that creates a client connection instance to server
 func (server *server) newClient(conn *websocket.Conn) {
@@ -40,10 +40,10 @@ func (server *server) newClient(conn *websocket.Conn) {
 	go server.receiveSys(&client)
 
 	server.systemChannel <- systemMessage{
-		id:       "help",
+		id:       "welcome",
 		date:     time.Now(),
 		toClient: &client,
-		args:     "Available commands:\\n/name [your name] | change your name\\n/channel [your channel name] | create a channel or connect to a channel if it exists\\n/private [recipient] [your message] | send a private message to someone on a channel\\n/quit | exit the server\\n\\nYour current channel is " + client.activeChannel.name,
+		args:     "Welcome, " + client.name + "!" + "\\n\\nYour current channel is " + client.activeChannel.name + ".",
 	}
 }
 
@@ -54,6 +54,13 @@ func (server *server) readInput(client *client) {
 	client.conn.SetReadDeadline(time.Now().Add(readWait))
 	client.conn.SetPongHandler(func(string) error {
 		client.conn.SetReadDeadline(time.Now().Add(readWait))
+		return nil
+	})
+
+	// standard functions from the gorilla library to handle hanging connection
+	client.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	client.conn.SetPongHandler(func(string) error {
+		client.conn.SetWriteDeadline(time.Now().Add(writeWait))
 		return nil
 	})
 
@@ -90,13 +97,6 @@ func (server *server) readInput(client *client) {
 				fromClient: client,
 				args:       args,
 			}
-		case "/private":
-			client.activeChannel.messagesReceiver <- message{
-				id:         "privateReceive",
-				date:       time.Now(),
-				fromClient: client,
-				args:       args,
-			}
 		case "/quit":
 			client.activeChannel.messagesReceiver <- message{
 				id:         "quit",
@@ -104,19 +104,12 @@ func (server *server) readInput(client *client) {
 				fromClient: client,
 				args:       args,
 			}
-		case "/help":
-			server.systemChannel <- systemMessage{
-				id:       "help",
-				date:     time.Now(),
-				toClient: client,
-				args:     "Available commands:\n/name [your name] | change your name\n/channel [your channel name] | create a channel or connect to a channel if it exists\n/msg [your message] | type your message in a current channel\n/private [recipient] [your message] | send a private message to someone on a channel\n/quit | exit the server\n\nYour current channel is " + client.activeChannel.name + "\n",
-			}
 		default:
 			server.systemChannel <- systemMessage{
 				id:       "error",
 				date:     time.Now(),
 				toClient: client,
-				args:     "Unknown command, please type /help\n",
+				args:     "Something went wrong delivering your message, please try reconnecting!\n",
 			}
 		}
 	}
@@ -130,30 +123,23 @@ func (server *server) receiveSys(client *client) {
 		switch sysMsg.id {
 		case "error":
 			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"" + sysMsg.args + "\"}")
+		case "welcome":
+			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"" + sysMsg.args + "\"}")
 
 		case "sys_activeChannel":
 			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"Your active channel is " + sysMsg.args + "\"}")
 		case "sys_changeName":
 			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"Your name is " + sysMsg.args + "\"}")
-
-		case "help":
-			sysMsg.toClient.deliverSys("{\"user\":" + "\"System\", " + "\"time\":" + "\"" + sysMsg.date.String() + "\", " + "\"msg\":" + "\"" + sysMsg.args + "\"}")
 		}
 	}
 }
 
 // write message to client [called on toClient object, others - on fromClient]
 func (toClient *client) deliverMsg(msg string, fromClient *client, date time.Time) {
-	// to be tested
-	// toClient.conn.SetWriteDeadline(time.Now().Add(writeWait))
-
 	toClient.conn.WriteMessage(websocket.TextMessage, []byte("{\"user\":"+"\""+fromClient.name+"\", "+"\"time\":"+"\""+date.String()+"\", "+"\"msg\":"+"\""+msg+"\"}"))
 }
 
 // write sysMessage to client [called on toClient object, others - on fromClient]
 func (toClient *client) deliverSys(msg string) {
-	// to be tested
-	// toClient.conn.SetWriteDeadline(time.Now().Add(writeWait))
-
 	toClient.conn.WriteMessage(websocket.TextMessage, []byte(msg+"\n"))
 }
