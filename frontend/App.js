@@ -2,42 +2,74 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, StyleSheet, BackHandler} from 'react-native';
 import { NativeRouter, Route } from "react-router-native";
 
+import { v4 as uuidv4 } from 'uuid';
+
 import Header from './components/Header';
 import Messages from './components/Messages';
 import SendMsg from './components/SendMsg';
 import Contacts from './components/Contacts';
 
-import { v4 as uuidv4 } from 'uuid';
+import Realm from "realm";
+
+//_____________________________________________//
 
 // specify backend address
 var backend = 'ws://10.0.2.2:5000/'
 
+// define schema for local on device storage
+const MsgSchema = {
+  name: "Msg",
+  properties: {
+    key: "string",
+    user: "string",
+    time: "string",
+    text: "string",
+    type: "string",
+  },
+};
+
+//_____________________________________________//
+
 const App = () => {
 
+//_____________________________________________//
+
   // State to store messages
-  const [msg, setMsg] = useState([])
+  const [msg, setMsg] = useState([]);
 
   // State to store username
-  const [username, setName] = useState("Anonymous")
+  const [username, setName] = useState("Anonymous");
 
   // State to store channels
   const [channels, setChannel] = useState({
     currentChannel: "general",
     bufferedChannels: [],
-  })
+  });
 
   // Special state to store backend address
-  const socket = useRef(null)
+  const socket = useRef(null);
+
+//_____________________________________________//
 
   // connect
   useEffect(() => {
     // Websocket server URL
     socket.current = new WebSocket(backend);
 
-    socket.current.onopen = () => console.log("Connection opened")
-    socket.current.onclose = () => console.log("Connection closed")
+    socket.current.onopen = () => console.log("Connection opened");
+
+  // open a local realm with the 'Msg' schema
+  Realm
+    .open({schema: [MsgSchema]})
+    .then(realm => {
+      setMsg(realm.objects("Msg"))
+    });
+
+    socket.current.onclose = () => console.log("Connection closed");
 
   }, [])
+
+//_____________________________________________//
 
   // get msg
   useEffect(() => {
@@ -45,14 +77,36 @@ const App = () => {
 
     // listen for messages
     socket.current.onmessage = (response) => {
-      let json_data = JSON.parse(response.data)
 
+      let jsonData = JSON.parse(response.data)
+
+      let genKey = uuidv4()
+      let date = Date().toString().slice(0,24)
+
+      Realm
+        .open({schema: [MsgSchema]})
+        .then(realm => {
+          // insert msg into the local database
+          realm.write(() => {
+            realm.create("Msg", {
+              key: genKey,
+              user: jsonData.user,
+              time: date,
+              text: jsonData.msg,
+              type: 'received',
+            });
+          });
+        });
+
+      // set state of messages
       setMsg(prevItems => { 
-        return [...prevItems, {key: uuidv4(), user: json_data.user, time: Date().toString().slice(0,24), text: json_data.msg, type: 'received'}];
+        return [...prevItems, {key: genKey, user: jsonData.user, time: date, text: jsonData.msg, type: 'received'}];
       })
     }
 
 }, [])
+
+//_____________________________________________//
 
   // send message to server
   const sendMsg = (text, username) => {
@@ -61,9 +115,28 @@ const App = () => {
       } else {
           //send msg to server
           socket.current.send(`/msg ${text}`)
-          // save string
+
+          let genKey = uuidv4()
+          let date = Date().toString().slice(0,24)
+
+          Realm
+          .open({schema: [MsgSchema]})
+          .then(realm => {
+            // insert msg into the local database
+            realm.write(() => {
+              realm.create("Msg", {
+                key: genKey,
+                user: username,
+                time: date,
+                text: text,
+                type: 'sent',
+              });
+            });
+          });
+
+          // set state of messages
           setMsg(prevItems => {
-            return [...prevItems, {key: uuidv4(), user: username, time: Date().toString().slice(0,24), text: text, type: 'sent'}];
+            return [...prevItems, {key: genKey, user: username, time: date, text: text, type: 'sent'}];
           })
       }
     }
@@ -107,6 +180,8 @@ const App = () => {
       // RNExitApp.exitApp()
     }
 
+//_____________________________________________//
+
   return (
     <NativeRouter>
 
@@ -128,6 +203,8 @@ const App = () => {
 
   )
 }
+
+//_____________________________________________//
 
 const styles = StyleSheet.create({
   container: {
