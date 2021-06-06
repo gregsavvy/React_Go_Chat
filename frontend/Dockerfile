@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM reactnativecommunity/react-native-android
 
 WORKDIR /app
 
@@ -8,4 +8,4 @@ RUN npm install
 
 COPY . .
 
-CMD ["npm","run", "start"; "npm", "run", "android"]
+CMD npm run start

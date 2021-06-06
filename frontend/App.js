@@ -11,7 +11,7 @@ import Contacts from './components/Contacts';
 
 import Realm from "realm";
 
-//_____________________________________________//
+// __utility block__ //
 
 // specify backend address
 var backend = 'ws://10.0.2.2:5000/'
@@ -28,11 +28,9 @@ const MsgSchema = {
   },
 };
 
-//_____________________________________________//
-
 const App = () => {
 
-//_____________________________________________//
+// __state block__ //
 
   // State to store messages
   const [msg, setMsg] = useState([]);
@@ -49,7 +47,7 @@ const App = () => {
   // Special state to store backend address
   const socket = useRef(null);
 
-//_____________________________________________//
+// __useEffect block__ //
 
   // connect
   useEffect(() => {
@@ -59,17 +57,13 @@ const App = () => {
     socket.current.onopen = () => console.log("Connection opened");
 
   // open a local realm with the 'Msg' schema
-  Realm
-    .open({schema: [MsgSchema]})
+  Realm.open({schema: [MsgSchema]})
     .then(realm => {
       setMsg(realm.objects("Msg"))
     });
 
     socket.current.onclose = () => console.log("Connection closed");
-
   }, [])
-
-//_____________________________________________//
 
   // get msg
   useEffect(() => {
@@ -106,7 +100,7 @@ const App = () => {
 
 }, [])
 
-//_____________________________________________//
+// __commands block__ //
 
   // send message to server
   const sendMsg = (text, username) => {
@@ -180,7 +174,7 @@ const App = () => {
       // RNExitApp.exitApp()
     }
 
-//_____________________________________________//
+// __render block__ //
 
   return (
     <NativeRouter>
@@ -204,7 +198,7 @@ const App = () => {
   )
 }
 
-//_____________________________________________//
+// __style block__ //
 
 const styles = StyleSheet.create({
   container: {
