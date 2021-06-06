@@ -3,7 +3,7 @@ About this app:
 This is a chat app using websockets, which consists of 2 separate modules:
 
 1. Go (with Gorilla Websocket) | Independent RestAPI backend (JSON provider) | ex. ws://localhost:5000
-2. React Native frontend | Mobile frontend (Android) | ex. localhost:8081 or your Android device IP
+2. React Native frontend | Mobile frontend (Android) | ex. your Android device IP or AVD emulator
 
 ---
 
@@ -21,6 +21,7 @@ Run:
 - From frontend run React Native server $npm run start
 - Build Android $npm run android
 
+---
 
 Installation and running from docker (testing...):
 - Install Docker from https://docs.docker.com/engine/install/ubuntu/ & Docker Compose from https://docs.docker.com/compose/install/
@@ -30,6 +31,11 @@ Installation and running from docker (testing...):
 - Bash into "front" container $sudo docker exec -it front bash
 - Make a connection to your desired Android machine with ABD (example, abd connect [HOST:PORT])
 - Build Android $npm run android
+
+Installation and running from Kubernetes (testing...):
+...
+
+---
 
 Scope:
 - This chat app is designed specifically not to store any data except on users' devices (Realm).
