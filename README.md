@@ -3,7 +3,7 @@ About this app:
 This is a chat app using websockets, which consists of 2 separate modules:
 
 1. Go (with Gorilla Websocket) | Independent RestAPI backend (JSON provider) | ex. ws://localhost:5000
-2. React Native frontend | Mobile frontend (Android) | ex. your Android device IP or AVD emulator
+2. React Native | Mobile frontend (Android) | ex. your Android device IP or AVD emulator
 
 ---
 
